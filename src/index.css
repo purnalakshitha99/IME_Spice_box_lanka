@@ -1,0 +1,59 @@
+@import "tailwindcss";
+
+@theme {
+  --color-cinnamon: #3d2314;
+  --color-cinnamon-light: #5c3a24;
+  --color-cinnamon-muted: #7a5640;
+  --color-cream: #f7f0e6;
+  --color-cream-dark: #ebe2d4;
+  --color-gold: #c4a35a;
+  --color-gold-dark: #a8863f;
+  --color-forest: #1f3d2b;
+  --color-forest-light: #2d5640;
+  --color-clay: #b85c38;
+  --color-ink: #1a1410;
+  --color-muted: #6b5c52;
+  --font-display: "Cormorant Garamond", Georgia, serif;
+  --font-sans: "Outfit", system-ui, sans-serif;
+}
+
+@layer base {
+  html {
+    scroll-behavior: smooth;
+  }
+
+  body {
+    margin: 0;
+    font-family: var(--font-sans);
+    color: var(--color-ink);
+    background-color: var(--color-cream);
+    -webkit-font-smoothing: antialiased;
+  }
+
+  h1, h2, h3, h4 {
+    font-family: var(--font-display);
+    font-weight: 600;
+    letter-spacing: -0.02em;
+  }
+
+  ::selection {
+    background: color-mix(in srgb, var(--color-gold) 40%, transparent);
+  }
+}
+
+@layer utilities {
+  .font-script {
+    font-family: "Great Vibes", cursive;
+  }
+
+  .bg-spice-texture {
+    background-color: var(--color-cream);
+    background-image:
+      radial-gradient(ellipse at 20% 0%, rgba(196, 163, 90, 0.12), transparent 50%),
+      radial-gradient(ellipse at 80% 100%, rgba(31, 61, 43, 0.08), transparent 45%);
+  }
+
+  .text-balance {
+    text-wrap: balance;
+  }
+}

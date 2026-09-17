@@ -1,0 +1,381 @@
+import { useEffect, useState } from 'react'
+import { motion } from 'framer-motion'
+import {
+  ArrowRight,
+  ChevronLeft,
+  ChevronRight,
+  Gift,
+  Leaf,
+  MapPin,
+  Package,
+  QrCode,
+  Sparkles,
+  Truck,
+} from 'lucide-react'
+import { Link } from 'react-router-dom'
+import { Button } from '../components/Button'
+import { api } from '../lib/api'
+import { formatLKR } from '../data/products'
+
+const fade = {
+  initial: { opacity: 0, y: 20 },
+  whileInView: { opacity: 1, y: 0 },
+  viewport: { once: true, margin: '-40px' },
+  transition: { duration: 0.45 },
+}
+
+const categories = [
+  {
+    title: 'Spice Collection',
+    image: '/products/spices-banner.jpg',
+    to: '/products?category=Spices',
+  },
+  {
+    title: 'Tea Collection',
+    image: '/products/tea.jpg',
+    to: '/products?category=Ceylon%20Tea',
+  },
+  {
+    title: 'Sri Lankan Food',
+    image: '/products/kokis.jpg',
+    to: '/products?category=Traditional%20Snacks',
+  },
+  {
+    title: 'Lifestyle Collection',
+    image: '/products/gift-corporate.jpg',
+    to: '/products?category=Lifestyle',
+  },
+]
+
+const fallbackBoxes = [
+  {
+    _id: 'mini',
+    name: 'Mini SpiceBox',
+    basePrice: 2500,
+    image: '/products/gift-taste.jpg',
+    description: 'A charming starter gift with essentials.',
+    slug: 'mini-spicebox',
+  },
+  {
+    _id: 'taste',
+    name: 'Taste of Sri Lanka',
+    basePrice: 5000,
+    image: '/products/gift-tea.jpg',
+    description: 'Spices, tea and island favourites.',
+    slug: 'taste-of-sri-lanka',
+  },
+  {
+    _id: 'premium',
+    name: 'Premium Ceylon Experience',
+    basePrice: 7500,
+    image: '/products/gift-birthday.jpg',
+    description: 'Elevated tea & spice curation.',
+    slug: 'premium-ceylon-experience',
+  },
+  {
+    _id: 'luxury',
+    name: 'Luxury Sri Lankan Heritage Box',
+    basePrice: 10000,
+    image: '/products/gift-heritage.jpg',
+    description: 'Our most luxurious heritage collection.',
+    slug: 'luxury-heritage-box',
+  },
+]
+
+type GiftBoxCard = {
+  _id: string
+  name: string
+  basePrice: number
+  image?: string
+  description?: string
+  slug?: string
+}
+
+export function HomePage() {
+  const [boxes, setBoxes] = useState<GiftBoxCard[]>(fallbackBoxes)
+  const [carousel, setCarousel] = useState(0)
+
+  useEffect(() => {
+    api<{ giftBoxes: GiftBoxCard[] }>('/gift-boxes')
+      .then((res) => {
+        if (res.giftBoxes?.length) setBoxes(res.giftBoxes)
+      })
+      .catch(() => undefined)
+  }, [])
+
+  const visible = boxes.slice(carousel, carousel + 4)
+  const canPrev = carousel > 0
+  const canNext = carousel + 4 < boxes.length
+
+  return (
+    <div className="bg-[#f6f1e8] text-cinnamon">
+      {/* Hero — mockup layout: plantation + copy + gift/scan visual */}
+      <section className="relative overflow-hidden">
+        <img
+          src="/products/tea.jpg"
+          alt=""
+          className="absolute inset-0 h-full w-full scale-105 object-cover"
+          aria-hidden
+        />
+        <div className="absolute inset-0 bg-gradient-to-r from-[#1a2e1f]/92 via-[#1f3d2b]/78 to-[#1f3d2b]/35" />
+        <div className="absolute inset-0 bg-gradient-to-t from-black/35 via-transparent to-black/20" />
+
+        <div className="relative mx-auto grid max-w-7xl items-center gap-10 px-4 pb-28 pt-16 md:grid-cols-2 md:px-6 md:pb-32 md:pt-20 lg:gap-14">
+          <motion.div
+            initial={{ opacity: 0, y: 24 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.6 }}
+            className="max-w-xl"
+          >
+            <h1 className="font-display text-4xl leading-[1.12] text-white text-balance md:text-5xl lg:text-[3.35rem]">
+              A Taste of Sri Lanka,{' '}
+              <span className="italic text-[#d4a84b]">Personalized</span> for You
+            </h1>
+            <p className="mt-5 max-w-md text-base leading-relaxed text-white/85 md:text-lg">
+              Create your own custom gift box with authentic Sri Lankan spices, Ceylon tea and local
+              delights.
+            </p>
+
+            <ul className="mt-7 space-y-3 text-sm text-white/90">
+              {[
+                ['Authentic Sri Lankan Products', Leaf],
+                ['Personalized Gift Boxes', Gift],
+                ['QR Code Cultural Experience', QrCode],
+              ].map(([label, Icon]) => (
+                <li key={label as string} className="flex items-center gap-3">
+                  <span className="flex h-9 w-9 items-center justify-center rounded-full bg-white/10 text-[#d4a84b] ring-1 ring-white/15">
+                    <Icon className="h-4 w-4" />
+                  </span>
+                  {label as string}
+                </li>
+              ))}
+            </ul>
+
+            <div className="mt-9 flex flex-wrap gap-3">
+              <Button
+                to="/build-your-spicebox"
+                variant="gold"
+                size="lg"
+                className="rounded-full bg-[#e0b84a] px-7 text-[#3d2314] hover:bg-[#c9a03d]"
+              >
+                Build My SpiceBox
+                <ArrowRight className="h-4 w-4" />
+              </Button>
+              <Button
+                to="/gift-boxes"
+                variant="outline"
+                size="lg"
+                className="rounded-full border-white/55 text-white hover:border-white hover:bg-white/10"
+              >
+                Explore Gift Boxes
+              </Button>
+            </div>
+          </motion.div>
+
+          {/* Gift box + red ribbon + scan hand (second image) */}
+          <motion.div
+            initial={{ opacity: 0, x: 28 }}
+            animate={{ opacity: 1, x: 0 }}
+            transition={{ duration: 0.7, delay: 0.1 }}
+            className="relative mx-auto w-full max-w-lg"
+          >
+            <div className="relative overflow-hidden rounded-[1.75rem] shadow-2xl shadow-black/40 ring-1 ring-white/20">
+              <img
+                src="/products/hero-gift-scan.png"
+                alt="SpiceBox gift with red ribbon and phone scanning QR code"
+                className="aspect-[4/3] w-full object-cover object-center md:aspect-[5/4]"
+              />
+              <div className="pointer-events-none absolute inset-y-0 left-0 w-2 bg-[#c41e3a] shadow-[2px_0_12px_rgba(196,30,58,0.45)]" />
+              <div className="pointer-events-none absolute -right-1 top-1/3 h-24 w-3 rotate-6 rounded-l bg-[#c41e3a]/90" />
+            </div>
+            <p className="mt-3 text-center text-xs font-medium tracking-wide text-white/75 md:text-left">
+              Scan & Discover the Sri Lankan Heritage
+            </p>
+          </motion.div>
+        </div>
+
+        {/* Value proposition bar — overlapping cream strip */}
+        <div className="relative z-10 mx-auto -mt-14 max-w-6xl px-4 md:-mt-16 md:px-6">
+          <div className="grid gap-4 rounded-3xl bg-[#f7f1e6] px-5 py-6 shadow-xl shadow-cinnamon/10 ring-1 ring-cinnamon/8 sm:grid-cols-2 lg:grid-cols-4 lg:px-8">
+            {[
+              {
+                icon: Sparkles,
+                title: 'Smart Recommendation',
+                text: 'Get the perfect box for your occasion',
+              },
+              {
+                icon: Package,
+                title: 'Full Customization',
+                text: 'Name, message & logo',
+              },
+              {
+                icon: Truck,
+                title: 'Islandwide Delivery',
+                text: 'Safe & timely',
+              },
+              {
+                icon: QrCode,
+                title: 'Cultural Experience',
+                text: 'A Sri Lankan story in every box',
+              },
+            ].map((item) => (
+              <div key={item.title} className="flex items-start gap-3">
+                <span className="mt-0.5 flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-forest/10 text-forest">
+                  <item.icon className="h-5 w-5" />
+                </span>
+                <div>
+                  <p className="text-sm font-semibold text-cinnamon">{item.title}</p>
+                  <p className="mt-0.5 text-xs leading-snug text-muted">{item.text}</p>
+                </div>
+              </div>
+            ))}
+          </div>
+        </div>
+      </section>
+
+      {/* Shop by Category */}
+      <section className="mx-auto max-w-7xl px-4 py-16 md:px-6 md:py-20">
+        <motion.div {...fade} className="flex items-end justify-between gap-4">
+          <div>
+            <p className="text-xs font-semibold uppercase tracking-[0.22em] text-forest">Discover</p>
+            <h2 className="mt-2 font-display text-3xl text-cinnamon md:text-4xl">Shop by Category</h2>
+          </div>
+          <Link to="/products" className="hidden text-sm font-medium text-forest hover:underline sm:inline">
+            View all
+          </Link>
+        </motion.div>
+
+        <div className="mt-8 grid gap-5 sm:grid-cols-2 lg:grid-cols-4">
+          {categories.map((c, i) => (
+            <motion.div key={c.title} {...fade} transition={{ delay: i * 0.06, duration: 0.45 }}>
+              <Link
+                to={c.to}
+                className="group flex h-full flex-col overflow-hidden rounded-2xl bg-white shadow-sm ring-1 ring-cinnamon/8 transition hover:-translate-y-1 hover:shadow-lg"
+              >
+                <div className="aspect-[5/4] overflow-hidden">
+                  <img
+                    src={c.image}
+                    alt={c.title}
+                    className="h-full w-full object-cover transition duration-500 group-hover:scale-105"
+                  />
+                </div>
+                <div className="flex flex-1 flex-col p-4">
+                  <h3 className="font-display text-xl text-cinnamon">{c.title}</h3>
+                  <span className="mt-auto inline-flex w-fit items-center gap-1 rounded-full bg-forest px-3.5 py-1.5 text-xs font-semibold text-cream">
+                    Explore <ArrowRight className="h-3.5 w-3.5" />
+                  </span>
+                </div>
+              </Link>
+            </motion.div>
+          ))}
+        </div>
+      </section>
+
+      {/* Popular Gift Boxes */}
+      <section className="border-t border-cinnamon/8 bg-[#fbf7f0] py-16 md:py-20">
+        <div className="mx-auto max-w-7xl px-4 md:px-6">
+          <motion.div {...fade} className="flex flex-wrap items-end justify-between gap-4">
+            <div>
+              <p className="text-xs font-semibold uppercase tracking-[0.22em] text-forest">Ready to gift</p>
+              <h2 className="mt-2 font-display text-3xl text-cinnamon md:text-4xl">Popular Gift Boxes</h2>
+            </div>
+            <div className="flex gap-2">
+              <button
+                type="button"
+                aria-label="Previous"
+                disabled={!canPrev}
+                onClick={() => setCarousel((c) => Math.max(0, c - 1))}
+                className="flex h-10 w-10 items-center justify-center rounded-full bg-white text-cinnamon ring-1 ring-cinnamon/15 disabled:opacity-35"
+              >
+                <ChevronLeft className="h-5 w-5" />
+              </button>
+              <button
+                type="button"
+                aria-label="Next"
+                disabled={!canNext}
+                onClick={() => setCarousel((c) => Math.min(boxes.length - 4, c + 1))}
+                className="flex h-10 w-10 items-center justify-center rounded-full bg-white text-cinnamon ring-1 ring-cinnamon/15 disabled:opacity-35"
+              >
+                <ChevronRight className="h-5 w-5" />
+              </button>
+            </div>
+          </motion.div>
+
+          <div className="mt-8 grid gap-5 sm:grid-cols-2 lg:grid-cols-4">
+            {(visible.length ? visible : boxes.slice(0, 4)).map((box) => (
+              <article
+                key={box._id || box.slug || box.name}
+                className="overflow-hidden rounded-2xl bg-white shadow-sm ring-1 ring-cinnamon/8"
+              >
+                <Link to={`/gift-boxes/${box.slug || box._id}`}>
+                  <img
+                    src={box.image || '/products/gift-taste.jpg'}
+                    alt={box.name}
+                    className="aspect-[4/3] w-full object-cover"
+                  />
+                </Link>
+                <div className="p-4">
+                  <h3 className="font-display text-xl text-cinnamon">{box.name}</h3>
+                  <p className="mt-1 line-clamp-2 text-xs text-muted">{box.description}</p>
+                  <p className="mt-3 font-semibold text-forest">
+                    {box.basePrice >= 10000 ? `${formatLKR(10000)}+` : formatLKR(box.basePrice)}
+                  </p>
+                  <div className="mt-3 flex gap-2">
+                    <Button to={`/gift-boxes/${box.slug || box._id}`} size="sm" className="flex-1">
+                      View
+                    </Button>
+                    <Button to="/build-your-spicebox" size="sm" variant="outline">
+                      Customize
+                    </Button>
+                  </div>
+                </div>
+              </article>
+            ))}
+          </div>
+
+          <div className="mt-8 text-center">
+            <Button to="/gift-boxes" variant="outline">
+              Browse all gift boxes
+              <ArrowRight className="h-4 w-4" />
+            </Button>
+          </div>
+        </div>
+      </section>
+
+      {/* Floating QR widget */}
+      <Link
+        to="/stories"
+        className="fixed bottom-5 right-5 z-40 flex max-w-[11rem] items-center gap-3 rounded-2xl bg-cinnamon p-3 text-cream shadow-xl shadow-cinnamon/30 ring-1 ring-gold/30 transition hover:-translate-y-0.5 hover:bg-cinnamon-light"
+      >
+        <span className="flex h-12 w-12 items-center justify-center rounded-xl bg-cream text-cinnamon">
+          <QrCode className="h-7 w-7" />
+        </span>
+        <span className="text-[11px] leading-snug font-medium">
+          Scan & Explore Sri Lankan Stories
+        </span>
+      </Link>
+
+      {/* Light sustainability strip — matches premium tone */}
+      <section className="mx-auto max-w-7xl px-4 py-14 md:px-6">
+        <motion.div
+          {...fade}
+          className="overflow-hidden rounded-3xl bg-forest px-6 py-10 text-cream md:flex md:items-center md:justify-between md:px-10"
+        >
+          <div className="max-w-xl">
+            <div className="flex items-center gap-2 text-gold">
+              <MapPin className="h-4 w-4" />
+              <span className="text-xs font-semibold uppercase tracking-[0.2em]">Locally sourced</span>
+            </div>
+            <h2 className="mt-3 font-display text-3xl">Sustainable gifting with island heart</h2>
+            <p className="mt-2 text-sm text-cream/75">
+              Recyclable packaging, Sri Lankan producers, and cultural storytelling in every SpiceBox.
+            </p>
+          </div>
+          <Button to="/our-story" variant="gold" className="mt-6 md:mt-0">
+            Our Story
+          </Button>
+        </motion.div>
+      </section>
+    </div>
+  )
+}
