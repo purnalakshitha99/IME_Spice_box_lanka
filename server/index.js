@@ -29,8 +29,32 @@ async function main() {
 
   const app = express()
   app.use(morgan('dev'))
-  app.use(cors({ origin: process.env.CLIENT_ORIGIN || true, credentials: true }))
   app.use(express.json({ limit: '5mb' }))
+
+  const clientOrigins = (process.env.CLIENT_ORIGIN || '')
+    .split(',')
+    .map((o) => o.trim().replace(/\/+$/, ''))
+    .filter(Boolean)
+
+  app.use(
+    cors({
+      origin: (origin, callback) => {
+        if (!origin) return callback(null, true)
+        const normalized = origin.replace(/\/+$/, '')
+        if (
+          clientOrigins.includes(normalized) ||
+          normalized.endsWith('.vercel.app') ||
+          normalized.endsWith('.onrender.com') ||
+          normalized.includes('localhost') ||
+          normalized.includes('127.0.0.1')
+        ) {
+          return callback(null, true)
+        }
+        return callback(null, true)
+      },
+      credentials: true,
+    }),
+  )
   app.use(express.urlencoded({ extended: true }))
   app.use(cookieParser())
   app.use('/uploads', express.static(path.join(__dirname, 'uploads')))
