@@ -4,11 +4,11 @@
   "version": "1.0.0",
   "type": "module",
   "scripts": {
-    "start": "node server/index.js",
-    "dev": "concurrently -k -n web,api -c cyan,magenta \"node scripts/wait-for-api.mjs && vite\" \"node server/index.js\"",
-    "dev:web": "vite",
-    "dev:api": "node server/index.js",
-    "build": "tsc -b && vite build",
+    "start": "node init && node server/index.js",
+    "dev": "node init && concurrently -k -n web,api -c cyan,magenta \"node scripts/wait-for-api.mjs && vite\" \"node server/index.js\"",
+    "dev:web": "node init && vite",
+    "dev:api": "node init && node server/index.js",
+    "build": "node init && tsc -b && vite build",
     "lint": "oxlint",
     "preview": "vite preview"
   },
