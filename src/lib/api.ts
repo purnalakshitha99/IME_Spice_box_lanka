@@ -19,6 +19,7 @@ export class ApiError extends Error {
   }
 }
 
+// SpiceBox Lanka API client with Render backend support
 export const API_BASE_URL = (import.meta.env.VITE_API_URL || '').replace(/\/+$/, '')
 
 export async function api<T = unknown>(
